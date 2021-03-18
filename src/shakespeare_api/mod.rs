@@ -1,10 +1,10 @@
 mod model;
 
-use reqwest::{Client, Url, Error};
-use crate::services::translation::{TranslationService, TranslationError};
+use crate::services::translation::{TranslationError, TranslationService};
+use crate::shakespeare_api::model::TranslationResponse;
 use futures::future::BoxFuture;
 use futures::FutureExt;
-use crate::shakespeare_api::model::TranslationResponse;
+use reqwest::{Client, Error, Url};
 
 pub struct ShakespeareService {
     client: Client,
@@ -12,15 +12,9 @@ pub struct ShakespeareService {
 }
 
 impl ShakespeareService {
-
-    pub fn new(client: Client,
-           url: Url) -> Self {
-        ShakespeareService{
-            client,
-            url
-        }
+    pub fn new(client: Client, url: Url) -> Self {
+        ShakespeareService { client, url }
     }
-
 }
 
 impl From<reqwest::Error> for TranslationError {
@@ -32,10 +26,14 @@ impl From<reqwest::Error> for TranslationError {
 const EXPECTED: &str = "shakespeare";
 
 impl TranslationService for ShakespeareService {
-    fn attempt_translation<'a>(&'a self, text: &'a str) -> BoxFuture<'a, Result<String, TranslationError>> {
+    fn attempt_translation<'a>(
+        &'a self,
+        text: &'a str,
+    ) -> BoxFuture<'a, Result<String, TranslationError>> {
         async move {
             let ShakespeareService { client, url } = self;
-            let response = client.post(url.clone())
+            let response = client
+                .post(url.clone())
                 .body(format!("text={}", text))
                 .send()
                 .await?;
@@ -45,12 +43,12 @@ impl TranslationService for ShakespeareService {
                     Ok(translated) if translated.contents.translation == EXPECTED => {
                         Ok(translated.contents.translation)
                     }
-                   _ => Err(TranslationError::TranslationFailed),
+                    _ => Err(TranslationError::TranslationFailed),
                 }
-
             } else {
                 Err(TranslationError::ServiceUnavailable)
             }
-        }.boxed()
+        }
+        .boxed()
     }
 }

@@ -3,12 +3,12 @@ use serde::Deserialize;
 #[derive(Deserialize, Debug)]
 pub struct PokemonSpecies {
     pub name: String,
-    pub flavor_text_entries: Vec<FlavorEntry>
+    pub flavor_text_entries: Vec<FlavorEntry>,
 }
 
 #[derive(Deserialize, Debug)]
 pub struct Language {
-    pub name: String
+    pub name: String,
 }
 
 #[derive(Deserialize, Debug)]
@@ -23,4 +23,3 @@ pub struct FlavorEntry {
     pub language: Language,
     pub version: Version,
 }
-

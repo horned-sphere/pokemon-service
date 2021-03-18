@@ -1,5 +1,5 @@
 use crate::model::PokemonData;
-use crate::poke_api::model::{PokemonSpecies, FlavorEntry};
+use crate::poke_api::model::{FlavorEntry, PokemonSpecies};
 use crate::services::pokemon::{PokemonService, PokemonServiceError};
 use futures::future::BoxFuture;
 use futures::FutureExt;
@@ -43,7 +43,10 @@ impl From<reqwest::Error> for PokemonServiceError {
 }
 
 impl PokemonService for PokeApiService {
-    fn get_pokemon<'a>(&'a self, name: &'a str) -> BoxFuture<'a, Result<PokemonData, PokemonServiceError>> {
+    fn get_pokemon<'a>(
+        &'a self,
+        name: &'a str,
+    ) -> BoxFuture<'a, Result<PokemonData, PokemonServiceError>> {
         async move {
             let PokeApiService { client, .. } = self;
             let url = self.try_format_url(name)?;
@@ -53,7 +56,7 @@ impl PokemonService for PokeApiService {
             if status.is_success() {
                 let PokemonSpecies {
                     name,
-                    flavor_text_entries
+                    flavor_text_entries,
                 } = response.json::<PokemonSpecies>().await?;
                 if let Some(description) = select_description(flavor_text_entries) {
                     Ok(PokemonData { name, description })
@@ -73,7 +76,10 @@ impl PokemonService for PokeApiService {
 const ENGLISH: &str = "en";
 
 fn select_description(entries: Vec<FlavorEntry>) -> Option<String> {
-    entries.into_iter().rev().find(|fl| fl.language.name == ENGLISH)
+    entries
+        .into_iter()
+        .rev()
+        .find(|fl| fl.language.name == ENGLISH)
         .map(|FlavorEntry { flavor_text, .. }| clean_flavor_text(flavor_text))
 }
 

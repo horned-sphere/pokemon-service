@@ -1,19 +1,20 @@
 [package]
 name = "pokeservice"
 version = "0.1.0"
-authors = ["Greg Holland <greg.holland@swim.ai>"]
+authors = ["Greg Holland <gholland@protonmail.com>"]
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+clap = "3.0.0-beta.2"
 futures = "0.3"
 lazy_static = "1.4.0"
 regex = "1.4.5"
 reqwest = { version = "0.11", features = ["json"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-tokio = { version = "1", features = ["rt"] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
 tokio-stream = "0.1"
 warp = "0.3"
 
