@@ -21,6 +21,6 @@ impl Error for TranslationError {}
 
 pub trait TranslationService {
 
-    fn attempt_translation(&self, text: &str) -> BoxFuture<Result<String, TranslationError>>;
+    fn attempt_translation<'a>(&'a self, text: &'a str) -> BoxFuture<'a, Result<String, TranslationError>>;
 
 }

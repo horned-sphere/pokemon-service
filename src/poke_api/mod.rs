@@ -43,11 +43,10 @@ impl From<reqwest::Error> for PokemonServiceError {
 }
 
 impl PokemonService for PokeApiService {
-    fn get_pokemon(&self, name: &str) -> BoxFuture<Result<PokemonData, PokemonServiceError>> {
-        let name = name.to_string();
+    fn get_pokemon<'a>(&'a self, name: &'a str) -> BoxFuture<'a, Result<PokemonData, PokemonServiceError>> {
         async move {
             let PokeApiService { client, .. } = self;
-            let url = self.try_format_url(name.as_str())?;
+            let url = self.try_format_url(name)?;
             let response = client.get(url).send().await?;
             let status = response.status();
 
@@ -62,7 +61,7 @@ impl PokemonService for PokeApiService {
                     Err(PokemonServiceError::NoSuchPokemon(name))
                 }
             } else if status == StatusCode::NOT_FOUND {
-                Err(PokemonServiceError::NoSuchPokemon(name))
+                Err(PokemonServiceError::NoSuchPokemon(name.to_string()))
             } else {
                 Err(PokemonServiceError::ServiceUnavailable)
             }

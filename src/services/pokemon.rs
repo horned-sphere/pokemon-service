@@ -22,6 +22,6 @@ impl Error for PokemonServiceError {}
 
 pub trait PokemonService {
 
-    fn get_pokemon(&self, name: &str) -> BoxFuture<Result<PokemonData, PokemonServiceError>>;
+    fn get_pokemon<'a>(&'a self, name: &'a str) -> BoxFuture<'a, Result<PokemonData, PokemonServiceError>>;
 
 }
