@@ -14,7 +14,6 @@ pub struct Language {
 #[derive(Deserialize, Debug)]
 pub struct Version {
     pub name: String,
-    url: String,
 }
 
 #[derive(Deserialize, Debug)]
