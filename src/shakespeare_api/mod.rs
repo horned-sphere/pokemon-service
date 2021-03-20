@@ -1,4 +1,6 @@
 mod model;
+#[cfg(test)]
+mod tests;
 
 use crate::services::translation::{TranslationError, TranslationService};
 use crate::shakespeare_api::model::TranslationResponse;
@@ -23,6 +25,7 @@ impl From<reqwest::Error> for TranslationError {
     }
 }
 
+const FORM_KEY: &str = "text";
 const EXPECTED: &str = "shakespeare";
 
 impl TranslationService for ShakespeareService {
@@ -32,16 +35,13 @@ impl TranslationService for ShakespeareService {
     ) -> BoxFuture<'a, Result<String, TranslationError>> {
         async move {
             let ShakespeareService { client, url } = self;
-            let response = client
-                .post(url.clone())
-                .body(format!("text={}", text))
-                .send()
-                .await?;
+            let form_data = [(FORM_KEY, text)];
+            let response = client.post(url.clone()).form(&form_data).send().await?;
             let status = response.status();
             if status.is_success() {
                 match response.json::<TranslationResponse>().await {
                     Ok(translated) if translated.contents.translation == EXPECTED => {
-                        Ok(translated.contents.translation)
+                        Ok(translated.contents.translated)
                     }
                     _ => Err(TranslationError::TranslationFailed),
                 }

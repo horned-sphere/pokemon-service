@@ -2,7 +2,7 @@ use futures::future::BoxFuture;
 use std::error::Error;
 use std::fmt::{Display, Formatter};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum TranslationError {
     ServiceUnavailable,
     TranslationFailed,
