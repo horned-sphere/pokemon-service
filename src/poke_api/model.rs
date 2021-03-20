@@ -1,5 +1,6 @@
 use serde::Deserialize;
 
+/// Models the response from the Pokemon species endpoint of the PokeAPI.
 #[derive(Deserialize, Debug)]
 pub struct PokemonSpecies {
     pub name: String,
