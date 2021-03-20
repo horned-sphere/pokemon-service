@@ -1,9 +1,7 @@
 use crate::shakespeare_api::model::{Translation, TranslationResponse};
-use reqwest::{Client, Url};
 
 const SAMPLE: &str = include_str!("sample.json");
 
-const INPUT: &str = "You gave Mr. Tim a hearty meal, but unfortunately what he ate made him die.";
 const OUTPUT: &str = "Thee did giveth mr. Tim a hearty meal,  but unfortunately what he did doth englut did maketh him kicketh the bucket.";
 
 #[test]
@@ -26,10 +24,14 @@ fn deserialize_service_response() {
 const SERVICE_URL: &str = "https://api.funtranslations.com/translate/shakespeare.json";
 
 #[cfg(feature = "api_tests")]
+const INPUT: &str = "You gave Mr. Tim a hearty meal, but unfortunately what he ate made him die.";
+
+#[cfg(feature = "api_tests")]
 #[tokio::test]
 async fn call_service() {
     use crate::services::translation::TranslationService;
     use crate::shakespeare_api::ShakespeareService;
+    use reqwest::{Client, Url};
 
     let url = Url::parse(SERVICE_URL).unwrap();
     let client = Client::new();
