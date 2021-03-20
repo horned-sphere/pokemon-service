@@ -6,6 +6,7 @@ use std::error::Error;
 use std::fmt::{Display, Formatter};
 use std::net::SocketAddr;
 use std::sync::Arc;
+use tracing::{event, Level};
 use warp::reject::Reject;
 use warp::reply::Response;
 use warp::{Filter, Rejection, Reply};
@@ -67,6 +68,7 @@ where
     Poke: PokemonService,
     Trans: TranslationService,
 {
+    event!(Level::INFO, message = "Handling request.", %name);
     let mut response = pokemon_service.get_pokemon(name.as_str()).await?;
     response.description = translation_service
         .attempt_translation(response.description.as_str())

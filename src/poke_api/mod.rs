@@ -6,6 +6,7 @@ use futures::FutureExt;
 use lazy_static::lazy_static;
 use regex::Regex;
 use reqwest::{Client, Error, StatusCode, Url};
+use tracing::{event, Level};
 
 mod model;
 #[cfg(test)]
@@ -58,13 +59,17 @@ impl PokemonService for PokeApiService {
         async move {
             // Check that the name is reasonable.
             if !NAME.is_match(name) {
+                event!(Level::INFO, message = "Rejected ill-formed Pokemon name.", %name);
                 return Err(PokemonServiceError::NoSuchPokemon(name.to_string()));
             }
 
             let PokeApiService { client, .. } = self;
             let url = self.try_format_url(name)?;
+            event!(Level::DEBUG, message = "Making Pokemon species request to:", %url);
             let response = client.get(url).send().await?;
             let status = response.status();
+
+            event!(Level::DEBUG, message = "Received response from Pokemon service.", %status);
 
             if status.is_success() {
                 let PokemonSpecies {
@@ -74,11 +79,13 @@ impl PokemonService for PokeApiService {
                 if let Some(description) = select_description(flavor_text_entries) {
                     Ok(PokemonData { name, description })
                 } else {
+                    event!(Level::WARN, message = "No suitable description was available.", %name);
                     Err(PokemonServiceError::NoSuchPokemon(name))
                 }
             } else if status == StatusCode::NOT_FOUND {
                 Err(PokemonServiceError::NoSuchPokemon(name.to_string()))
             } else {
+                event!(Level::ERROR, message = "Unanticipated response from Pokemon service.", %status);
                 Err(PokemonServiceError::ServiceUnavailable)
             }
         }

@@ -9,6 +9,7 @@ use crate::shakespeare_api::ShakespeareService;
 use clap::Clap;
 use reqwest::Url;
 use std::net::{IpAddr, SocketAddr};
+use tracing::{event, span, Instrument, Level};
 
 #[derive(Clap)]
 #[clap(name = "pokemon-translator", version = "0.1")]
@@ -19,10 +20,10 @@ struct Params {
     /// Port to bind to
     #[clap(short, long)]
     port: u16,
-    /// Base URL of the Pokemon API
+    /// Base URL of the Pokemon API (i.e. https://pokeapi.co/api/v2/pokemon-species)
     #[clap(short = 'a', long)]
     pokemon: String,
-    /// URL of the Shakespeare translation service
+    /// URL of the Shakespeare translation service (i.e. https://api.funtranslations.com/translate/shakespeare.json)
     #[clap(short, long)]
     shakespeare: String,
 }
@@ -54,6 +55,7 @@ impl Params {
 
 #[tokio::main]
 async fn main() {
+    tracing_subscriber::fmt::init();
     let params: Params = Params::parse();
 
     match params.validate() {
@@ -62,9 +64,12 @@ async fn main() {
 
             let pokemon_service = PokeApiService::new(client.clone(), poke_api_url);
             let shakespeare_service = ShakespeareService::new(client, shakespeare_url);
-            endpoints::run_server(sock_addr, pokemon_service, shakespeare_service).await;
+            endpoints::run_server(sock_addr, pokemon_service, shakespeare_service)
+                .instrument(span!(Level::INFO, "Pokemon API server."))
+                .await;
         }
         Err(msg) => {
+            event!(Level::ERROR, message = "Configuration parameters were invalid.", error = %msg);
             panic!(msg);
         }
     }
