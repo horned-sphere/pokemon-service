@@ -76,6 +76,7 @@ fn check_names() {
     assert!(super::NAME.is_match("Pikachu"));
     assert!(super::NAME.is_match("two-part"));
     assert!(super::NAME.is_match("pikachu2"));
+    assert!(!super::NAME.is_match("100"));
 }
 
 #[cfg(feature = "api_tests")]

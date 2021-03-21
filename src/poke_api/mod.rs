@@ -14,7 +14,7 @@ mod tests;
 
 lazy_static! {
     static ref WS: Regex = Regex::new(r"\s+").unwrap();
-    static ref NAME: Regex = Regex::new(r"^[A-Za-z0-9\-]+$").unwrap();
+    static ref NAME: Regex = Regex::new(r"^[A-Za-z][A-Za-z0-9\-]*$").unwrap();
 }
 
 /// Implementation of the Pokemon service that queries the PokeAPI at https://pokeapi.co.
