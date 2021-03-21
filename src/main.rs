@@ -18,7 +18,7 @@ struct Params {
     #[clap(short, long, default_value = "127.0.0.1")]
     bind: String,
     /// Port to bind to
-    #[clap(short, long)]
+    #[clap(short, long, default_value = "8080")]
     port: u16,
     /// Base URL of the Pokemon API (i.e. https://pokeapi.co/api/v2/pokemon-species)
     #[clap(short = 'a', long)]
