@@ -38,9 +38,9 @@ A Dockerfile is provided to build an image for the service. This can be built wi
 
 `docker build -t pokeservice .`
 
-To run the service (binding to 127.0.0.1:8080 by default, as above):
+To run the service (the default of binding to 127.0.0.1 will not work inside a Docker container):
 
-`docker run -p 8080:8080 pokeservice --pokemon https://pokeapi.co/api/v2/pokemon-species --shakespeare https://api.funtranslations.com/translate/shakespeare.json`
+`docker run -p 8080:8080 pokeservice --bind 0.0.0.0 --pokemon https://pokeapi.co/api/v2/pokemon-species --shakespeare https://api.funtranslations.com/translate/shakespeare.json`
 
 Testing
 -------
@@ -68,4 +68,5 @@ There are a number of ways in which the service could be improved.
 * The service does not currently support TLS.
 * The Shakespeare translation API has a paid version with an API key. They configuration for the service could be extended to allow a key to be supplied.
 * The interfaces for the Pokemon and translation services are defined as traits. Due to current compiler limitations around associated types this necessitates boxing the futures. This could be avoided by encoding the interfaces using function traits (for example, the translation API could be defined as `Fn(&'a str) -> Fut, Fut: Future<Output = String> + 'a`). This would (potentially) improve performance a tht expense of some readability.
-* The reqwest API is not easy to mock. As a quick solution I have written some integration tests that run directly against the real APIs. It would be better to design an abstraction around the reqwest client or to spin up a minimal server in the test cases, however, this would have been very time consuming.
+* The reqwest API is not easy to mock. As a quick solution I have written some integration tests that run directly against the real APIs. It would be better to design an abstraction around the reqwest client or to spin up a minimal server in the test cases, however, this would have been very time-consuming.
+* Building the docker image will always rebuild all the dependencies. This can be avoided but the solutions I have seen all look quite hacky so I didn't use any of them.
